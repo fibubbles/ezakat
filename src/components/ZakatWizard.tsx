@@ -343,10 +343,10 @@ function ConfirmScreen({ facts, onConfirm, onBack }: { facts: Facts; onConfirm: 
   accounts.forEach((a, i) => rows.push({ label: `Akaun ${i+1} (${a.type})`, value: `RM${Number(a.baki).toLocaleString()}` }));
   const goldItems = (facts.goldItems as {kat:string;berat:number;karat:string}[]) ?? [];
   goldItems.forEach((g, i) => rows.push({ label: `Emas ${i+1} (${g.kat})`, value: `${g.berat}g · ${g.karat}K` }));
-  if (facts.kaedahAsb) rows.push({ label: 'Kaedah ASB', value: facts.kaedahAsb === 'tradisional' ? 'Tradisional' : 'al-Mustaghallat' });
-  if (facts.asbBase) rows.push({ label: 'Baki ASB', value: `RM${Number(facts.asbBase).toLocaleString()}` });
-  if (facts.asbNilai) rows.push({ label: 'Nilai ASB', value: `RM${Number(facts.asbNilai).toLocaleString()}` });
-  if (facts.asbDiv) rows.push({ label: 'Dividen ASB', value: `RM${Number(facts.asbDiv).toLocaleString()}` });
+  if (facts.kelasAsb) rows.push({ label: 'Kelas ASNB', value: facts.kelasAsb === 'B' ? 'Kelas B (Zakat Khultah)' : 'Kelas A (Kira Sendiri)' });
+  if (facts.asbModal !== undefined) rows.push({ label: 'Modal ASB', value: `RM${Number(facts.asbModal).toLocaleString()}` });
+  if (facts.asbDiv !== undefined) rows.push({ label: 'Dividen & Bonus', value: `RM${Number(facts.asbDiv).toLocaleString()}` });
+  if (facts.asbJumlah !== undefined && facts.kelasAsb === 'A') rows.push({ label: 'Jumlah (Modal+Dividen)', value: `RM${Number(facts.asbJumlah).toLocaleString()}` });
 
   return (
     <div className="anim-slide" style={{ maxWidth: 520, margin: '0 auto', padding: '36px 24px 48px' }}>
@@ -555,6 +555,10 @@ function ResultScreen({ result, view, onReset, onBack }: { result: ZakatResult; 
                               goldWornZ:        (v) => `Nilai emas perhiasan: RM${Number(v).toLocaleString('en-MY', {minimumFractionDigits:2})}`,
                               goldStoredZ:      (v) => `Nilai emas simpanan: RM${Number(v).toLocaleString('en-MY', {minimumFractionDigits:2})}`,
                               goldPawnedZ:      (v) => `Nilai emas cagar: RM${Number(v).toLocaleString('en-MY', {minimumFractionDigits:2})}`,
+                              asbModal:         (v) => `Modal ASB: RM${Number(v).toLocaleString('en-MY', {minimumFractionDigits:2})}`,
+                              asbDiv:           (v) => `Dividen ASB: RM${Number(v).toLocaleString('en-MY', {minimumFractionDigits:2})}`,
+                              asbJumlah:        (v) => `Jumlah (Modal+Dividen): RM${Number(v).toLocaleString('en-MY', {minimumFractionDigits:2})}`,
+                              kelasAsb:         (v) => v === 'B' ? 'Kelas B (Khultah)' : 'Kelas A (Individu)',
                             };
                             const display = labels[k] ? labels[k](v) : `${k} = ${String(v)}`;
                             return (
@@ -610,7 +614,7 @@ function Chatbot({ zakatType }: { zakatType?: string }) {
 
     try {
       const context = zakatType ? `Pengguna sedang mengira ${zakatType}.` : '';
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`, {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
