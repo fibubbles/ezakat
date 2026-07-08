@@ -214,12 +214,20 @@ function TypeCard({ type, onClick }: { type: typeof TYPES[0]; onClick: () => voi
 
 function QuestionCard({ q, onAnswer, onBack }: { q: Question; onAnswer: (qid: string, value: unknown) => void; onBack: () => void }) {
   const [vals, setVals] = useState<Record<string, string>>({});
-  useEffect(() => { setVals({}); }, [q.id]);
+  const [error, setError] = useState('');
+  useEffect(() => { setVals({}); setError(''); }, [q.id]);
 
   const submit = () => {
     if (q.kind === 'number' && q.field) {
-      onAnswer(q.id, parseFloat(vals[q.field.k] || '0') || 0);
+      const val = parseFloat(vals[q.field.k] || '0');
+      if (!vals[q.field.k] || vals[q.field.k].trim() === '') {
+        setError('Sila isi jumlah sebelum teruskan.');
+        return;
+      }
+      setError('');
+      onAnswer(q.id, val || 0);
     } else if (q.kind === 'group' && q.fields) {
+      setError('');
       const obj: Record<string, string> = {};
       q.fields.forEach(f => { obj[f.k] = vals[f.k] ?? '0'; });
       onAnswer(q.id, obj);
@@ -248,6 +256,11 @@ function QuestionCard({ q, onAnswer, onBack }: { q: Question; onAnswer: (qid: st
         {q.kind === 'number' && q.field && (
           <>
             <NumberInput field={q.field} value={vals[q.field.k] ?? ''} onChange={v => setVals(p => ({ ...p, [q.field!.k]: v }))} onEnter={submit} />
+            {error && (
+              <p style={{ color: '#CE1126', fontSize: 12.5, fontWeight: 600, marginTop: 8, marginBottom: 0 }}>
+                ⚠ {error}
+              </p>
+            )}
             <PrimaryBtn onClick={submit} label="Seterusnya →" />
           </>
         )}
@@ -262,6 +275,11 @@ function QuestionCard({ q, onAnswer, onBack }: { q: Question; onAnswer: (qid: st
                 </div>
               ))}
             </div>
+            {error && (
+              <p style={{ color: '#CE1126', fontSize: 12.5, fontWeight: 600, marginTop: 8, marginBottom: 0 }}>
+                ⚠ {error}
+              </p>
+            )}
             <PrimaryBtn onClick={submit} label="Seterusnya →" style={{ marginTop: 20 }} />
           </>
         )}
@@ -306,6 +324,7 @@ function PrimaryBtn({ onClick, label, style: extra }: { onClick: () => void; lab
 }
 
 function ConfirmScreen({ facts, onConfirm, onBack }: { facts: Facts; onConfirm: () => void; onBack: () => void }) {
+  const [loading, setLoading] = useState(false);
   const t = facts.zakatType as string;
   const typeLabel: Record<string, string> = { pendapatan: 'Zakat Pendapatan', simpanan: 'Zakat Simpanan', emas: 'Zakat Emas', asb: 'Zakat ASB' };
 
@@ -350,8 +369,9 @@ function ConfirmScreen({ facts, onConfirm, onBack }: { facts: Facts; onConfirm: 
         Semak maklumat di atas. Tekan <strong>Kira Zakat</strong> untuk dapatkan keputusan.
       </p>
 
-      <button onClick={onConfirm} style={{ display: 'block', width: '100%', padding: '14px 0', borderRadius: 14, background: '#CE1126', color: 'white', fontWeight: 700, fontSize: 14.5, border: 'none', cursor: 'pointer', boxShadow: '0 8px 20px rgba(206,17,38,0.3)', fontFamily: 'inherit' }}>
-        Kira Zakat →
+      <button onClick={() => { setLoading(true); setTimeout(onConfirm, 800); }} disabled={loading}
+        style={{ display: 'block', width: '100%', padding: '14px 0', borderRadius: 14, background: loading ? '#7A6A57' : '#CE1126', color: 'white', fontWeight: 700, fontSize: 14.5, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', boxShadow: '0 8px 20px rgba(206,17,38,0.3)', fontFamily: 'inherit', transition: 'all 0.3s' }}>
+        {loading ? '⏳ Sistem sedang menaakul...' : 'Kira Zakat →'}
       </button>
     </div>
   );
@@ -422,6 +442,25 @@ function ResultScreen({ result, view, onReset, onBack }: { result: ZakatResult; 
             ) : (
               <div style={{ fontFamily: 'Fraunces, serif', fontWeight: 700, fontSize: 22, color: 'white', lineHeight: 1.25 }}>{result.reason || 'Tidak diwajibkan zakat'}</div>
             )}
+          </div>
+        </div>
+
+        {/* Nisab Indicator */}
+        <div style={{ background: 'white', borderRadius: 18, border: '1.5px solid #EAD9B8', padding: '16px 20px', marginTop: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#7A6A57', marginBottom: 4 }}>Nisab Semasa</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#1A1208' }}>RM42,047.00</div>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#7A6A57', marginBottom: 4 }}>
+              {wajib ? 'Lebihan Nisab' : 'Kekurangan Nisab'}
+            </div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: wajib ? '#1B7A43' : '#CE1126' }}>
+              {result.payable !== undefined && wajib
+                ? `+ RM${((result.payable / 0.025) - 42047).toLocaleString('en-MY', { minimumFractionDigits: 2 })}`
+                : result.how.length > 0 ? '< RM42,047' : '-'
+              }
+            </div>
           </div>
         </div>
 
