@@ -531,7 +531,6 @@ function ResultScreen({ result, view, onReset, onBack }: { result: ZakatResult; 
                   <div style={{ flex: 1, paddingBottom: idx < result.cycles.length - 1 ? 16 : 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                       <span style={{ fontWeight: 800, color: '#CE1126', fontSize: 13 }}>{c.fired}</span>
-                      <span style={{ background: '#FDE9A6', color: '#A50D1E', borderRadius: 999, padding: '1px 8px', fontSize: 10.5, fontWeight: 700 }}>salience {c.salience}</span>
                     </div>
                     <div style={{ fontSize: 13, color: '#1A1208', marginBottom: 8, lineHeight: 1.5 }}>{c.because}</div>
                     {Object.keys(c.asserted).length > 0 && (
