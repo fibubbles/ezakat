@@ -593,6 +593,123 @@ function ResultScreen({ result, view, onReset, onBack }: { result: ZakatResult; 
   );
 }
 
+function Chatbot({ zakatType }: { zakatType?: string }) {
+  const [open, setOpen] = useState(false);
+  const [messages, setMessages] = useState<{ role: 'user' | 'bot'; text: string }[]>([
+    { role: 'bot', text: 'Assalamualaikum! Saya pembantu zakat anda. Ada soalan tentang zakat?' }
+  ]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const send = async () => {
+    if (!input.trim()) return;
+    const userMsg = input.trim();
+    setInput('');
+    setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
+    setLoading(true);
+
+    try {
+      const context = zakatType ? `Pengguna sedang mengira ${zakatType}.` : '';
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: `Kamu adalah pembantu pakar zakat Malaysia, khususnya Lembaga Zakat Selangor (LZS). Jawab dalam Bahasa Malaysia. Fokus pada soalan zakat sahaja. ${context}\n\nSoalan: ${userMsg}`
+            }]
+          }]
+        })
+      });
+      const data = await res.json();
+      const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Maaf, cuba lagi.';
+      setMessages(prev => [...prev, { role: 'bot', text: reply }]);
+    } catch {
+      setMessages(prev => [...prev, { role: 'bot', text: 'Maaf, ada masalah. Cuba lagi.' }]);
+    }
+    setLoading(false);
+  };
+
+  return (
+    <>
+      {/* Floating button */}
+      <button onClick={() => setOpen(!open)} style={{
+        position: 'fixed', bottom: 24, right: 24, width: 56, height: 56,
+        borderRadius: '50%', background: '#CE1126', border: 'none', cursor: 'pointer',
+        boxShadow: '0 8px 24px rgba(206,17,38,0.4)', display: 'grid', placeItems: 'center',
+        zIndex: 1000, transition: 'all 0.2s'
+      }}>
+        {open
+          ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          : <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        }
+      </button>
+
+      {/* Chat window */}
+      {open && (
+        <div style={{
+          position: 'fixed', bottom: 90, right: 24, width: 340, height: 480,
+          background: 'white', borderRadius: 20, boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
+          display: 'flex', flexDirection: 'column', zIndex: 999,
+          border: '1.5px solid #EAD9B8', overflow: 'hidden'
+        }}>
+          {/* Header */}
+          <div style={{ background: '#CE1126', padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'grid', placeItems: 'center' }}>
+              <SelangorIcon size={18} />
+            </div>
+            <div>
+              <div style={{ color: 'white', fontWeight: 700, fontSize: 14 }}>Pembantu Zakat</div>
+              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11 }}>LZS Selangor · Gemini AI</div>
+            </div>
+          </div>
+
+          {/* Messages */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: '14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {messages.map((m, i) => (
+              <div key={i} style={{ display: 'flex', justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start' }}>
+                <div style={{
+                  maxWidth: '80%', padding: '10px 14px', borderRadius: m.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                  background: m.role === 'user' ? '#CE1126' : '#FAFAF8',
+                  color: m.role === 'user' ? 'white' : '#1A1208',
+                  fontSize: 13, lineHeight: 1.5,
+                  border: m.role === 'bot' ? '1px solid #EAD9B8' : 'none'
+                }}>
+                  {m.text}
+                </div>
+              </div>
+            ))}
+            {loading && (
+              <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                <div style={{ padding: '10px 14px', borderRadius: '18px 18px 18px 4px', background: '#FAFAF8', border: '1px solid #EAD9B8', fontSize: 13, color: '#7A6A57' }}>
+                  ⏳ Sedang berfikir...
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Input */}
+          <div style={{ padding: '12px 14px', borderTop: '1px solid #EAD9B8', display: 'flex', gap: 8 }}>
+            <input
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && send()}
+              placeholder="Tanya soalan zakat..."
+              style={{ flex: 1, padding: '10px 14px', borderRadius: 12, border: '1.5px solid #EAD9B8', outline: 'none', fontSize: 13, fontFamily: 'inherit', color: '#1A1208' }}
+            />
+            <button onClick={send} disabled={loading} style={{
+              width: 40, height: 40, borderRadius: 12, background: '#CE1126', border: 'none',
+              cursor: 'pointer', display: 'grid', placeItems: 'center', flexShrink: 0
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            </button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 export default function ZakatWizard() {
   const [s, dispatch] = useReducer(reducer, INIT);
   const currentQ = s.screen === 'question' ? Consult.next(s.facts) : null;
@@ -612,6 +729,7 @@ export default function ZakatWizard() {
           {s.screen === 'result' && s.result && <ResultScreen result={s.result} view={s.view} onReset={() => dispatch({ type: 'RESET' })} onBack={() => dispatch({ type: 'BACK' })} />}
         </div>
       </div>
+      <Chatbot zakatType={s.facts.zakatType as string} />
     </div>
   );
 }
