@@ -526,9 +526,9 @@ function ResultScreen({ result, view, onReset, onBack }: { result: ZakatResult; 
                     <div><span style={{ fontWeight: 800, color: '#CE1126', fontSize: 13 }}>{c.fired}</span><span style={{ color: '#7A6A57', fontSize: 11.5, marginLeft: 8 }}>salience {c.salience}</span></div>
                     <div style={{ fontSize: 12, color: '#1A1208', marginBottom: 4 }}>{c.because}</div>
                     <div style={{ fontFamily: 'monospace', fontSize: 10.5, color: '#7A6A57', marginBottom: 6 }}>agenda: [{c.agenda.join(', ')}]</div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 4 }}>
                       {Object.entries(c.asserted).map(([k, v]) => (
-                        <span key={k} style={{ background: '#FDE9A6', color: '#A50D1E', borderRadius: 6, padding: '1px 8px', fontSize: 11, fontWeight: 700 }}>{k} = {String(v)}</span>
+                        <span key={k} style={{ background: '#FDE9A6', color: '#A50D1E', borderRadius: 6, padding: '3px 10px', fontSize: 11, fontWeight: 700, display: 'inline-block' }}>{k} = {String(v)}</span>
                       ))}
                     </div>
                     {c.ref && <div style={{ fontSize: 10.5, color: '#7A6A57', marginTop: 5 }}>↳ {c.ref}</div>}
