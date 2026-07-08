@@ -510,25 +510,25 @@ function ResultScreen({ result, view, onReset, onBack }: { result: ZakatResult; 
         )}
 
         {view === 'pakar' && (
-          <div style={{ background: '#1A0608', borderRadius: 18, border: '1px solid rgba(206,17,38,0.3)', overflow: 'hidden', marginTop: 14 }}>
-            <div style={{ padding: '13px 18px', borderBottom: '1px solid rgba(206,17,38,0.2)' }}>
+          <div style={{ background: 'white', borderRadius: 18, border: '1.5px solid #EAD9B8', overflow: 'hidden', marginTop: 14 }}>
+            <div style={{ padding: '13px 18px', borderBottom: '1px solid #EAD9B8', background: '#FAFAF8' }}>
               <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#CE1126' }}>Jejak Penaakulan — Recognize–Act Cycles</div>
-              <div style={{ fontFamily: 'monospace', fontSize: 10.5, color: 'rgba(255,255,255,0.35)', marginTop: 4 }}>{result.firedRules.join(' → ')}</div>
+              <div style={{ fontFamily: 'monospace', fontSize: 10.5, color: '#7A6A57', marginTop: 4 }}>{result.firedRules.join(' → ')}</div>
             </div>
             <div style={{ padding: '12px 0', maxHeight: 380, overflowY: 'auto' }}>
               {result.cycles.map(c => (
-                <div key={c.cycle} style={{ display: 'flex', gap: 12, padding: '10px 18px', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                <div key={c.cycle} style={{ display: 'flex', gap: 12, padding: '10px 18px', borderBottom: '1px solid #EAD9B8' }}>
                   <div style={{ width: 26, height: 26, borderRadius: 8, background: '#CE1126', color: 'white', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 11, flexShrink: 0 }}>{c.cycle}</div>
                   <div>
-                    <div><span style={{ fontWeight: 800, color: '#F9C513', fontSize: 13 }}>{c.fired}</span><span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 11.5, marginLeft: 8 }}>salience {c.salience}</span></div>
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', marginBottom: 4 }}>{c.because}</div>
-                    <div style={{ fontFamily: 'monospace', fontSize: 10.5, color: 'rgba(255,255,255,0.28)', marginBottom: 6 }}>agenda: [{c.agenda.join(', ')}]</div>
+                    <div><span style={{ fontWeight: 800, color: '#CE1126', fontSize: 13 }}>{c.fired}</span><span style={{ color: '#7A6A57', fontSize: 11.5, marginLeft: 8 }}>salience {c.salience}</span></div>
+                    <div style={{ fontSize: 12, color: '#1A1208', marginBottom: 4 }}>{c.because}</div>
+                    <div style={{ fontFamily: 'monospace', fontSize: 10.5, color: '#7A6A57', marginBottom: 6 }}>agenda: [{c.agenda.join(', ')}]</div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
                       {Object.entries(c.asserted).map(([k, v]) => (
-                        <span key={k} style={{ background: 'rgba(249,197,19,0.1)', color: '#F9C513', borderRadius: 6, padding: '1px 8px', fontSize: 11, fontWeight: 700 }}>{k} = {String(v)}</span>
+                        <span key={k} style={{ background: '#FDE9A6', color: '#A50D1E', borderRadius: 6, padding: '1px 8px', fontSize: 11, fontWeight: 700 }}>{k} = {String(v)}</span>
                       ))}
                     </div>
-                    {c.ref && <div style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.22)', marginTop: 5 }}>↳ {c.ref}</div>}
+                    {c.ref && <div style={{ fontSize: 10.5, color: '#7A6A57', marginTop: 5 }}>↳ {c.ref}</div>}
                   </div>
                 </div>
               ))}
