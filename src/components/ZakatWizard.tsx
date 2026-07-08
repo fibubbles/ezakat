@@ -610,7 +610,7 @@ function Chatbot({ zakatType }: { zakatType?: string }) {
 
     try {
       const context = zakatType ? `Pengguna sedang mengira ${zakatType}.` : '';
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`, {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -622,10 +622,12 @@ function Chatbot({ zakatType }: { zakatType?: string }) {
         })
       });
       const data = await res.json();
+      console.log('API response:', JSON.stringify(data));
       const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Maaf, cuba lagi.';
       setMessages(prev => [...prev, { role: 'bot', text: reply }]);
-    } catch {
-      setMessages(prev => [...prev, { role: 'bot', text: 'Maaf, ada masalah. Cuba lagi.' }]);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setMessages(prev => [...prev, { role: 'bot', text: `Error: ${msg}` }]);
     }
     setLoading(false);
   };
