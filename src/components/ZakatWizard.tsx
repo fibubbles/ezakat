@@ -538,11 +538,32 @@ function ResultScreen({ result, view, onReset, onBack }: { result: ZakatResult; 
                       <div style={{ background: '#FAFAF8', borderRadius: 10, padding: '10px 12px', border: '1px solid #EAD9B8' }}>
                         <div style={{ fontSize: 10.5, fontWeight: 700, color: '#7A6A57', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Fakta baru diperoleh</div>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                          {Object.entries(c.asserted).map(([k, v]) => (
-                            <span key={k} style={{ background: 'white', border: '1px solid #EAD9B8', color: '#1A1208', borderRadius: 8, padding: '3px 10px', fontSize: 11.5, fontWeight: 600 }}>
-                              <span style={{ color: '#7A6A57' }}>{k}</span> = <span style={{ color: '#CE1126', fontWeight: 700 }}>{String(v)}</span>
-                            </span>
-                          ))}
+                          {Object.entries(c.asserted).map(([k, v]) => {
+                            const labels: Record<string, (v: unknown) => string> = {
+                              eligible:         () => 'Layak zakat ✓',
+                              incomeAdmissible: () => 'Pendapatan boleh dinilai ✓',
+                              nisabSatisfied:   () => 'Nisab dipenuhi ✓',
+                              zakatObligatory:  () => 'Zakat WAJIB ✓',
+                              conclusion:       (v) => v === 'WAJIB' ? '✅ Keputusan: WAJIB' : '❌ Keputusan: TIDAK',
+                              assessableAmount: (v) => `Jumlah dinilai: RM${Number(v).toLocaleString('en-MY', {minimumFractionDigits:2})}`,
+                              nisabTestValue:   (v) => `Nilai semakan nisab: RM${Number(v).toLocaleString('en-MY', {minimumFractionDigits:2})}`,
+                              payableBase:      (v) => `Asas pengiraan: RM${Number(v).toLocaleString('en-MY', {minimumFractionDigits:2})}`,
+                              payableAmount:    (v) => `Zakat perlu dibayar: RM${Number(v).toLocaleString('en-MY', {minimumFractionDigits:2})}`,
+                              applicableRate:   (v) => `Kadar: ${(Number(v)*100).toFixed(2).replace(/\.?0+$/,'')}%`,
+                              nisabBasis:       (v) => `Asas nisab: ${v === 'rm' ? 'Wang Ringgit' : 'Emas'}`,
+                              monthly:          (v) => `Bayaran bulanan: RM${Number(v).toLocaleString('en-MY', {minimumFractionDigits:2})}`,
+                              reason:           (v) => `Sebab: ${v}`,
+                              goldWornZ:        (v) => `Nilai emas perhiasan: RM${Number(v).toLocaleString('en-MY', {minimumFractionDigits:2})}`,
+                              goldStoredZ:      (v) => `Nilai emas simpanan: RM${Number(v).toLocaleString('en-MY', {minimumFractionDigits:2})}`,
+                              goldPawnedZ:      (v) => `Nilai emas cagar: RM${Number(v).toLocaleString('en-MY', {minimumFractionDigits:2})}`,
+                            };
+                            const display = labels[k] ? labels[k](v) : `${k} = ${String(v)}`;
+                            return (
+                              <span key={k} style={{ background: 'white', border: '1px solid #EAD9B8', color: '#1A1208', borderRadius: 8, padding: '3px 10px', fontSize: 11.5, fontWeight: 600 }}>
+                                {display}
+                              </span>
+                            );
+                          })}
                         </div>
                       </div>
                     )}
