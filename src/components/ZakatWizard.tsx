@@ -512,26 +512,41 @@ function ResultScreen({ result, view, onReset, onBack }: { result: ZakatResult; 
         {view === 'pakar' && (
           <div style={{ background: 'white', borderRadius: 18, border: '1.5px solid #EAD9B8', overflow: 'hidden', marginTop: 14 }}>
             <div style={{ padding: '13px 18px', borderBottom: '1px solid #EAD9B8', background: '#FAFAF8' }}>
-              <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#CE1126' }}>Jejak Penaakulan — Recognize–Act Cycles</div>
-              <p style={{ fontSize: 12, color: '#7A6A57', marginTop: 6, marginBottom: 0, lineHeight: 1.5 }}>
-                Mod Pakar menunjukkan urutan peraturan (rules) yang dipecat oleh enjin inferens untuk sampai kepada keputusan ini.
+              <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#CE1126' }}>Jejak Penaakulan</div>
+              <p style={{ fontSize: 12, color: '#7A6A57', marginTop: 4, marginBottom: 0, lineHeight: 1.5 }}>
+                Urutan peraturan yang digunakan sistem untuk sampai kepada keputusan ini.
               </p>
-              <div style={{ fontFamily: 'monospace', fontSize: 10.5, color: '#7A6A57', marginTop: 8 }}>{result.firedRules.join(' → ')}</div>
             </div>
-            <div style={{ padding: '12px 0', maxHeight: 380, overflowY: 'auto' }}>
-              {result.cycles.map(c => (
-                <div key={c.cycle} style={{ display: 'flex', gap: 12, padding: '10px 18px', borderBottom: '1px solid #EAD9B8' }}>
-                  <div style={{ width: 26, height: 26, borderRadius: 8, background: '#CE1126', color: 'white', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 11, flexShrink: 0 }}>{c.cycle}</div>
-                  <div>
-                    <div><span style={{ fontWeight: 800, color: '#CE1126', fontSize: 13 }}>{c.fired}</span><span style={{ color: '#7A6A57', fontSize: 11.5, marginLeft: 8 }}>salience {c.salience}</span></div>
-                    <div style={{ fontSize: 12, color: '#1A1208', marginBottom: 4 }}>{c.because}</div>
-                    <div style={{ fontFamily: 'monospace', fontSize: 10.5, color: '#7A6A57', marginBottom: 6 }}>agenda: [{c.agenda.join(', ')}]</div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 4 }}>
-                      {Object.entries(c.asserted).map(([k, v]) => (
-                        <span key={k} style={{ background: '#FDE9A6', color: '#A50D1E', borderRadius: 6, padding: '3px 10px', fontSize: 11, fontWeight: 700, display: 'inline-block' }}>{k} = {String(v)}</span>
-                      ))}
+            <div style={{ padding: '12px 18px' }}>
+              {result.cycles.map((c, idx) => (
+                <div key={c.cycle} style={{ display: 'flex', gap: 14, marginBottom: idx < result.cycles.length - 1 ? 16 : 0 }}>
+                  {/* Left — number + line */}
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
+                    <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#CE1126', color: 'white', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 12, flexShrink: 0 }}>{c.cycle}</div>
+                    {idx < result.cycles.length - 1 && (
+                      <div style={{ width: 2, flex: 1, background: '#EAD9B8', marginTop: 4, minHeight: 20 }} />
+                    )}
+                  </div>
+                  {/* Right — content */}
+                  <div style={{ flex: 1, paddingBottom: idx < result.cycles.length - 1 ? 16 : 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                      <span style={{ fontWeight: 800, color: '#CE1126', fontSize: 13 }}>{c.fired}</span>
+                      <span style={{ background: '#FDE9A6', color: '#A50D1E', borderRadius: 999, padding: '1px 8px', fontSize: 10.5, fontWeight: 700 }}>salience {c.salience}</span>
                     </div>
-                    {c.ref && <div style={{ fontSize: 10.5, color: '#7A6A57', marginTop: 5 }}>↳ {c.ref}</div>}
+                    <div style={{ fontSize: 13, color: '#1A1208', marginBottom: 8, lineHeight: 1.5 }}>{c.because}</div>
+                    {Object.keys(c.asserted).length > 0 && (
+                      <div style={{ background: '#FAFAF8', borderRadius: 10, padding: '10px 12px', border: '1px solid #EAD9B8' }}>
+                        <div style={{ fontSize: 10.5, fontWeight: 700, color: '#7A6A57', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Fakta baru diperoleh</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                          {Object.entries(c.asserted).map(([k, v]) => (
+                            <span key={k} style={{ background: 'white', border: '1px solid #EAD9B8', color: '#1A1208', borderRadius: 8, padding: '3px 10px', fontSize: 11.5, fontWeight: 600 }}>
+                              <span style={{ color: '#7A6A57' }}>{k}</span> = <span style={{ color: '#CE1126', fontWeight: 700 }}>{String(v)}</span>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {c.ref && <div style={{ fontSize: 11, color: '#7A6A57', marginTop: 6 }}>📚 {c.ref}</div>}
                   </div>
                 </div>
               ))}
