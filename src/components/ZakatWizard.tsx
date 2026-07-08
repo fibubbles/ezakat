@@ -496,7 +496,7 @@ function ResultScreen({ result, view, onReset, onBack }: { result: ZakatResult; 
           </div>
         )}
 
-        {view === 'pengguna' && result.why.length > 0 && (
+        {result.why.length > 0 && (
           <div style={{ background: 'white', borderRadius: 18, border: '1.5px solid #EAD9B8', overflow: 'hidden', marginTop: 14 }}>
             <div style={{ padding: '13px 20px', borderBottom: '1px solid #EAD9B8', fontSize: 10.5, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#CE1126' }}>Kenapa Keputusan Ini?</div>
             <ul style={{ listStyle: 'none', margin: 0, padding: '4px 20px 14px' }}>
