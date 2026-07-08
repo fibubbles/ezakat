@@ -583,7 +583,7 @@ function ResultScreen({ result, view, onReset, onBack }: { result: ZakatResult; 
         ⬇ Muat Turun PDF
       </button>
 
-      <a href={wajib ? 'https://www.zakat.com.my/perkhidmatan/pembayaran-zakat/' : 'https://www.zakat.com.my'} target="_blank" rel="noopener noreferrer"
+      <a href={wajib ? 'https://www.zakatselangor.com.my/bayar-zakat/' : 'https://www.zakatselangor.com.my'} target="_blank" rel="noopener noreferrer"
         style={{ display: 'block', width: '100%', marginTop: 20, padding: '14px 0', borderRadius: 14, background: wajib ? '#1B7A43' : '#1A4B8C', color: 'white', fontWeight: 700, fontSize: 14.5, border: 'none', cursor: 'pointer', boxShadow: wajib ? '0 8px 20px rgba(27,122,67,0.28)' : '0 8px 20px rgba(26,75,140,0.28)', fontFamily: 'inherit', textAlign: 'center', textDecoration: 'none' }}>
         {wajib ? '💳 Bayar Zakat di LZS →' : '🌐 Lawati Lembaga Zakat Selangor →'}
       </a>
@@ -666,7 +666,7 @@ function Chatbot({ zakatType }: { zakatType?: string }) {
             </div>
             <div>
               <div style={{ color: 'white', fontWeight: 700, fontSize: 14 }}>Pembantu Zakat</div>
-              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11 }}>LZS Selangor · Gemini AI</div>
+              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11 }}>LZS Selangor · Agent Zakat</div>
             </div>
           </div>
 
