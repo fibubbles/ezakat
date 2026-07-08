@@ -336,8 +336,16 @@ function ConfirmScreen({ facts, onConfirm, onBack }: { facts: Facts; onConfirm: 
   if (facts.incGaji) rows.push({ label: 'Gaji & Upah', value: `RM${Number(facts.incGaji).toLocaleString()}` });
   if (facts.incBebas) rows.push({ label: 'Kerja Bebas', value: `RM${Number(facts.incBebas).toLocaleString()}` });
   if (facts.incSewa) rows.push({ label: 'Sewa', value: `RM${Number(facts.incSewa).toLocaleString()}` });
+  if (facts.incBeri) rows.push({ label: 'Pemberian', value: `RM${Number(facts.incBeri).toLocaleString()}` });
   if (facts.kwsp) rows.push({ label: 'KWSP', value: `RM${Number(facts.kwsp).toLocaleString()}` });
+  if (facts.th) rows.push({ label: 'Tabung Haji', value: `RM${Number(facts.th).toLocaleString()}` });
+  const accounts = (facts.accounts as {type:string;baki:number;faedah:number}[]) ?? [];
+  accounts.forEach((a, i) => rows.push({ label: `Akaun ${i+1} (${a.type})`, value: `RM${Number(a.baki).toLocaleString()}` }));
+  const goldItems = (facts.goldItems as {kat:string;berat:number;karat:string}[]) ?? [];
+  goldItems.forEach((g, i) => rows.push({ label: `Emas ${i+1} (${g.kat})`, value: `${g.berat}g · ${g.karat}K` }));
+  if (facts.kaedahAsb) rows.push({ label: 'Kaedah ASB', value: facts.kaedahAsb === 'tradisional' ? 'Tradisional' : 'al-Mustaghallat' });
   if (facts.asbBase) rows.push({ label: 'Baki ASB', value: `RM${Number(facts.asbBase).toLocaleString()}` });
+  if (facts.asbNilai) rows.push({ label: 'Nilai ASB', value: `RM${Number(facts.asbNilai).toLocaleString()}` });
   if (facts.asbDiv) rows.push({ label: 'Dividen ASB', value: `RM${Number(facts.asbDiv).toLocaleString()}` });
 
   return (
@@ -396,9 +404,20 @@ function ResultScreen({ result, view, onReset, onBack }: { result: ZakatResult; 
         unit: 'mm', 
         format: 'a4' 
       });
-      const imgWidth = 210;
+      const pageWidth = 210;
+      const pageHeight = 297;
+      const imgWidth = pageWidth;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      let heightLeft = imgHeight;
+      let position = 0;
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
       pdf.save('zakat-selangor.pdf');
     } catch (error) {
       console.error('Error generating PDF:', error);
@@ -491,7 +510,7 @@ function ResultScreen({ result, view, onReset, onBack }: { result: ZakatResult; 
         )}
 
         {view === 'pakar' && (
-          <div style={{ background: '#0D0304', borderRadius: 18, border: '1px solid rgba(206,17,38,0.2)', overflow: 'hidden', marginTop: 14 }}>
+          <div style={{ background: '#1A0608', borderRadius: 18, border: '1px solid rgba(206,17,38,0.3)', overflow: 'hidden', marginTop: 14 }}>
             <div style={{ padding: '13px 18px', borderBottom: '1px solid rgba(206,17,38,0.2)' }}>
               <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#CE1126' }}>Jejak Penaakulan — Recognize–Act Cycles</div>
               <div style={{ fontFamily: 'monospace', fontSize: 10.5, color: 'rgba(255,255,255,0.35)', marginTop: 4 }}>{result.firedRules.join(' → ')}</div>
@@ -521,6 +540,11 @@ function ResultScreen({ result, view, onReset, onBack }: { result: ZakatResult; 
       <button onClick={handleDownloadPDF} style={{ display: 'block', width: '100%', marginTop: 20, padding: '14px 0', borderRadius: 14, background: 'white', color: '#CE1126', fontWeight: 700, fontSize: 14.5, border: '2px solid #CE1126', cursor: 'pointer', fontFamily: 'inherit' }}>
         ⬇ Muat Turun PDF
       </button>
+
+      <a href={wajib ? 'https://www.zakat.com.my/perkhidmatan/pembayaran-zakat/' : 'https://www.zakat.com.my'} target="_blank" rel="noopener noreferrer"
+        style={{ display: 'block', width: '100%', marginTop: 20, padding: '14px 0', borderRadius: 14, background: wajib ? '#1B7A43' : '#1A4B8C', color: 'white', fontWeight: 700, fontSize: 14.5, border: 'none', cursor: 'pointer', boxShadow: wajib ? '0 8px 20px rgba(27,122,67,0.28)' : '0 8px 20px rgba(26,75,140,0.28)', fontFamily: 'inherit', textAlign: 'center', textDecoration: 'none' }}>
+        {wajib ? '💳 Bayar Zakat di LZS →' : '🌐 Lawati Lembaga Zakat Selangor →'}
+      </a>
 
       <button onClick={onReset} style={{ display: 'block', width: '100%', marginTop: 12, padding: '14px 0', borderRadius: 14, background: '#CE1126', color: 'white', fontWeight: 700, fontSize: 14.5, border: 'none', cursor: 'pointer', boxShadow: '0 8px 20px rgba(206,17,38,0.28)', fontFamily: 'inherit' }}>
         ↺ Kira Zakat Lain
