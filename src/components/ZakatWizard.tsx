@@ -513,7 +513,10 @@ function ResultScreen({ result, view, onReset, onBack }: { result: ZakatResult; 
           <div style={{ background: 'white', borderRadius: 18, border: '1.5px solid #EAD9B8', overflow: 'hidden', marginTop: 14 }}>
             <div style={{ padding: '13px 18px', borderBottom: '1px solid #EAD9B8', background: '#FAFAF8' }}>
               <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#CE1126' }}>Jejak Penaakulan — Recognize–Act Cycles</div>
-              <div style={{ fontFamily: 'monospace', fontSize: 10.5, color: '#7A6A57', marginTop: 4 }}>{result.firedRules.join(' → ')}</div>
+              <p style={{ fontSize: 12, color: '#7A6A57', marginTop: 6, marginBottom: 0, lineHeight: 1.5 }}>
+                Mod Pakar menunjukkan urutan peraturan (rules) yang dipecat oleh enjin inferens untuk sampai kepada keputusan ini.
+              </p>
+              <div style={{ fontFamily: 'monospace', fontSize: 10.5, color: '#7A6A57', marginTop: 8 }}>{result.firedRules.join(' → ')}</div>
             </div>
             <div style={{ padding: '12px 0', maxHeight: 380, overflowY: 'auto' }}>
               {result.cycles.map(c => (
