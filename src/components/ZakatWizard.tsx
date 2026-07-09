@@ -10,11 +10,11 @@ import html2canvas from 'html2canvas';
 type Screen = 'home' | 'question' | 'confirm' | 'result';
 
 interface State {
-  screen:  Screen;
-  facts:   Facts;
+  screen: Screen;
+  facts: Facts;
   history: Facts[];
-  result:  ZakatResult | null;
-  view:    'pengguna' | 'pakar';
+  result: ZakatResult | null;
+  view: 'pengguna' | 'pakar';
   animKey: number;
 }
 
@@ -38,7 +38,7 @@ function reducer(s: State, a: Action): State {
     }
     case 'ANSWER': {
       const facts = Consult.apply({ ...s.facts }, a.qid, a.value);
-      const q     = Consult.next(facts);
+      const q = Consult.next(facts);
       if (q) return { ...s, history: [...s.history, s.facts], facts, screen: 'question', animKey: k };
       return { ...s, history: [...s.history, s.facts], facts, screen: 'confirm', animKey: k };
     }
@@ -47,20 +47,20 @@ function reducer(s: State, a: Action): State {
     case 'BACK': {
       if (!s.history.length) return { ...s, screen: 'home', facts: {}, result: null, animKey: k };
       const history = [...s.history];
-      const facts   = history.pop()!;
-      const q       = Consult.next(facts);
+      const facts = history.pop()!;
+      const q = Consult.next(facts);
       return { ...s, facts, history, result: null, screen: q ? 'question' : 'home', animKey: k };
     }
-    case 'RESET':    return { ...INIT, view: s.view, animKey: k };
+    case 'RESET': return { ...INIT, view: s.view, animKey: k };
     case 'SET_VIEW': return { ...s, view: a.view };
-    default:         return s;
+    default: return s;
   }
 }
 
 const PHASES = ['Jenis Zakat', 'Syarat Wajib', 'Maklumat', 'Keputusan'];
 
 function phaseIdx(screen: Screen, q: Question | null): number {
-  if (screen === 'home')   return 0;
+  if (screen === 'home') return 0;
   if (screen === 'result') return 3;
   if (screen === 'confirm') return 2;
   if (!q) return 3;
@@ -69,7 +69,7 @@ function phaseIdx(screen: Screen, q: Question | null): number {
 }
 
 function pct(screen: Screen, histLen: number): number {
-  if (screen === 'home')   return 0;
+  if (screen === 'home') return 0;
   if (screen === 'confirm') return 90;
   if (screen === 'result') return 100;
   return Math.min(88, 12 + histLen * 14);
@@ -78,8 +78,8 @@ function pct(screen: Screen, histLen: number): number {
 function SelangorIcon({ size = 20 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <path d="M16.5 15.6a6 6 0 1 1 0-9.2 7.2 7.2 0 1 0 0 9.2Z" fill="#F9C513"/>
-      <path d="M18.2 8.1l.7 1.9 1.9.1-1.5 1.2.5 1.9-1.6-1.1-1.6 1.1.5-1.9-1.5-1.2 1.9-.1.8-1.9Z" fill="white"/>
+      <path d="M16.5 15.6a6 6 0 1 1 0-9.2 7.2 7.2 0 1 0 0 9.2Z" fill="#F9C513" />
+      <path d="M18.2 8.1l.7 1.9 1.9.1-1.5 1.2.5 1.9-1.6-1.1-1.6 1.1.5-1.9-1.5-1.2 1.9-.1.8-1.9Z" fill="white" />
     </svg>
   );
 }
@@ -111,7 +111,7 @@ function Sidebar({ phase, view, onView }: { phase: number; view: string; onView:
                 <div key={p} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                   <div style={{ width: 24, height: 24, borderRadius: '50%', border: `2px solid ${done ? '#CE1126' : active ? '#F9C513' : 'rgba(255,255,255,0.15)'}`, background: done ? '#CE1126' : '#0D0304', display: 'grid', placeItems: 'center', flexShrink: 0, position: 'relative', zIndex: 1, transition: 'all 0.35s' }}>
                     {done
-                      ? <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l2.5 2.5L9 1" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      ? <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l2.5 2.5L9 1" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
                       : <div style={{ width: 8, height: 8, borderRadius: '50%', background: active ? '#F9C513' : 'transparent' }} />}
                   </div>
                   <span style={{ fontSize: 13, fontWeight: active ? 700 : done ? 500 : 400, color: active ? '#F9C513' : done ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.25)', transition: 'all 0.3s' }}>{p}</span>
@@ -339,14 +339,40 @@ function ConfirmScreen({ facts, onConfirm, onBack }: { facts: Facts; onConfirm: 
   if (facts.incBeri) rows.push({ label: 'Pemberian', value: `RM${Number(facts.incBeri).toLocaleString()}` });
   if (facts.kwsp) rows.push({ label: 'KWSP', value: `RM${Number(facts.kwsp).toLocaleString()}` });
   if (facts.th) rows.push({ label: 'Tabung Haji', value: `RM${Number(facts.th).toLocaleString()}` });
-  const accounts = (facts.accounts as {type:string;baki:number;faedah:number}[]) ?? [];
-  accounts.forEach((a, i) => rows.push({ label: `Akaun ${i+1} (${a.type})`, value: `RM${Number(a.baki).toLocaleString()}` }));
-  const goldItems = (facts.goldItems as {kat:string;berat:number;karat:string}[]) ?? [];
-  goldItems.forEach((g, i) => rows.push({ label: `Emas ${i+1} (${g.kat})`, value: `${g.berat}g · ${g.karat}K` }));
-  if (facts.kelasAsb) rows.push({ label: 'Kelas ASNB', value: facts.kelasAsb === 'B' ? 'Kelas B (Zakat Khultah)' : 'Kelas A (Kira Sendiri)' });
-  if (facts.asbModal !== undefined) rows.push({ label: 'Modal ASB', value: `RM${Number(facts.asbModal).toLocaleString()}` });
-  if (facts.asbDiv !== undefined) rows.push({ label: 'Dividen & Bonus', value: `RM${Number(facts.asbDiv).toLocaleString()}` });
-  if (facts.asbJumlah !== undefined && facts.kelasAsb === 'A') rows.push({ label: 'Jumlah (Modal+Dividen)', value: `RM${Number(facts.asbJumlah).toLocaleString()}` });
+  const accounts = (facts.accounts as { type: string; baki: number; faedah: number }[]) ?? [];
+  accounts.forEach((a, i) => rows.push({ label: `Akaun ${i + 1} (${a.type})`, value: `RM${Number(a.baki).toLocaleString()}` }));
+  const goldItems = (facts.goldItems as { kat: string; berat: number; karat: string }[]) ?? [];
+  goldItems.forEach((g, i) => rows.push({ label: `Emas ${i + 1} (${g.kat})`, value: `${g.berat}g · ${g.karat}K` }));
+
+  // ASB display with correct Kelas A/B logic
+  if (facts.kelasAsb) rows.push({
+    label: 'Kelas Akaun ASNB',
+    value: facts.kelasAsb === 'B' ? 'Kelas B (Zakat Khultah)' : 'Kelas A (Kira Sendiri)'
+  });
+
+  // For Kelas A: show modal and dividen
+  if (facts.kelasAsb === 'A' && facts.asbNilai !== undefined) rows.push({
+    label: 'Baki Pelaburan ASB (Modal)',
+    value: `RM${Number(facts.asbNilai).toLocaleString('en-MY', { minimumFractionDigits: 2 })}`
+  });
+
+  if (facts.asbDiv !== undefined) rows.push({
+    label: 'Dividen & Bonus Setahun',
+    value: `RM${Number(facts.asbDiv).toLocaleString('en-MY', { minimumFractionDigits: 2 })}`
+  });
+
+  if (facts.kelasAsb === 'A' && facts.asbNilai !== undefined && facts.asbDiv !== undefined) {
+    const jumlah = Number(facts.asbNilai) + Number(facts.asbDiv);
+    rows.push({
+      label: 'Jumlah Semakan Nisab (Modal + Dividen)',
+      value: `RM${jumlah.toLocaleString('en-MY', { minimumFractionDigits: 2 })}`
+    });
+  }
+
+  if (facts.kelasAsb === 'B') rows.push({
+    label: 'Semakan Nisab',
+    value: 'Dinilai secara kolektif (Khultah)'
+  });
 
   return (
     <div className="anim-slide" style={{ maxWidth: 520, margin: '0 auto', padding: '36px 24px 48px' }}>
@@ -392,17 +418,17 @@ function ResultScreen({ result, view, onReset, onBack }: { result: ZakatResult; 
     const element = document.getElementById('result-content');
     if (!element) return;
     try {
-      const canvas = await html2canvas(element, { 
-        scale: 2, 
+      const canvas = await html2canvas(element, {
+        scale: 2,
         backgroundColor: '#FAFAF8',
         useCORS: true,
         logging: false,
       });
       const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({ 
-        orientation: 'portrait', 
-        unit: 'mm', 
-        format: 'a4' 
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
       });
       const pageWidth = 210;
       const pageHeight = 297;
@@ -443,8 +469,8 @@ function ResultScreen({ result, view, onReset, onBack }: { result: ZakatResult; 
         <div style={{ borderRadius: 22, overflow: 'hidden', position: 'relative', background: wajib ? 'linear-gradient(135deg, #1B7A43 0%, #0F4A28 100%)' : 'linear-gradient(135deg, #A50D1E 0%, #0D0304 100%)', boxShadow: wajib ? '0 24px 48px rgba(27,122,67,0.28)' : '0 24px 48px rgba(165,13,30,0.28)' }}>
           <div style={{ position: 'absolute', right: -28, top: -28, opacity: 0.07 }}>
             <svg width="180" height="180" viewBox="0 0 180 180" fill="none">
-              <circle cx="90" cy="90" r="82" stroke="white" strokeWidth="4"/>
-              <circle cx="128" cy="68" r="62" fill="black"/>
+              <circle cx="90" cy="90" r="82" stroke="white" strokeWidth="4" />
+              <circle cx="128" cy="68" r="62" fill="black" />
             </svg>
           </div>
           <div style={{ padding: '32px 30px', position: 'relative', zIndex: 1 }}>
@@ -472,13 +498,14 @@ function ResultScreen({ result, view, onReset, onBack }: { result: ZakatResult; 
           </div>
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#7A6A57', marginBottom: 4 }}>
-              {wajib ? 'Lebihan Nisab' : 'Kekurangan Nisab'}
+              {wajib ? 'Lebihan Nisab' : 'Status Nisab'}
             </div>
             <div style={{ fontSize: 13, fontWeight: 700, color: wajib ? '#1B7A43' : '#CE1126' }}>
-              {result.payable !== undefined && wajib
+              {wajib && result.payable !== undefined
                 ? `+ RM${((result.payable / 0.025) - 42047).toLocaleString('en-MY', { minimumFractionDigits: 2 })}`
-                : result.how.length > 0 ? '< RM42,047' : '-'
-              }
+                : result.reason === 'Kelas B (khultah) - nisab kolektif'
+                  ? '✓ Khultah (kolektif)'
+                  : result.how.length > 0 ? '< RM42,047' : '-'}
             </div>
           </div>
         </div>
@@ -539,26 +566,25 @@ function ResultScreen({ result, view, onReset, onBack }: { result: ZakatResult; 
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                           {Object.entries(c.asserted).map(([k, v]) => {
                             const labels: Record<string, (v: unknown) => string> = {
-                              eligible:         () => 'Layak zakat ✓',
+                              eligible: () => 'Layak zakat ✓',
                               incomeAdmissible: () => 'Pendapatan boleh dinilai ✓',
-                              nisabSatisfied:   () => 'Nisab dipenuhi ✓',
-                              zakatObligatory:  () => 'Zakat WAJIB ✓',
-                              conclusion:       (v) => v === 'WAJIB' ? '✅ Keputusan: WAJIB' : '❌ Keputusan: TIDAK',
-                              assessableAmount: (v) => `Jumlah dinilai: RM${Number(v).toLocaleString('en-MY', {minimumFractionDigits:2})}`,
-                              nisabTestValue:   (v) => `Nilai semakan nisab: RM${Number(v).toLocaleString('en-MY', {minimumFractionDigits:2})}`,
-                              payableBase:      (v) => `Asas pengiraan: RM${Number(v).toLocaleString('en-MY', {minimumFractionDigits:2})}`,
-                              payableAmount:    (v) => `Zakat perlu dibayar: RM${Number(v).toLocaleString('en-MY', {minimumFractionDigits:2})}`,
-                              applicableRate:   (v) => `Kadar: ${(Number(v)*100).toFixed(2).replace(/\.?0+$/,'')}%`,
-                              nisabBasis:       (v) => `Asas nisab: ${v === 'rm' ? 'Wang Ringgit' : 'Emas'}`,
-                              monthly:          (v) => `Bayaran bulanan: RM${Number(v).toLocaleString('en-MY', {minimumFractionDigits:2})}`,
-                              reason:           (v) => `Sebab: ${v}`,
-                              goldWornZ:        (v) => `Nilai emas perhiasan: RM${Number(v).toLocaleString('en-MY', {minimumFractionDigits:2})}`,
-                              goldStoredZ:      (v) => `Nilai emas simpanan: RM${Number(v).toLocaleString('en-MY', {minimumFractionDigits:2})}`,
-                              goldPawnedZ:      (v) => `Nilai emas cagar: RM${Number(v).toLocaleString('en-MY', {minimumFractionDigits:2})}`,
-                              asbModal:         (v) => `Modal ASB: RM${Number(v).toLocaleString('en-MY', {minimumFractionDigits:2})}`,
-                              asbDiv:           (v) => `Dividen ASB: RM${Number(v).toLocaleString('en-MY', {minimumFractionDigits:2})}`,
-                              asbJumlah:        (v) => `Jumlah (Modal+Dividen): RM${Number(v).toLocaleString('en-MY', {minimumFractionDigits:2})}`,
-                              kelasAsb:         (v) => v === 'B' ? 'Kelas B (Khultah)' : 'Kelas A (Individu)',
+                              nisabSatisfied: () => 'Nisab dipenuhi ✓',
+                              zakatObligatory: () => 'Zakat WAJIB ✓',
+                              conclusion: (v) => v === 'WAJIB' ? '✅ Keputusan: WAJIB' : '❌ Keputusan: TIDAK',
+                              assessableAmount: (v) => `Jumlah dinilai: RM${Number(v).toLocaleString('en-MY', { minimumFractionDigits: 2 })}`,
+                              nisabTestValue: (v) => `Nilai semakan nisab: RM${Number(v).toLocaleString('en-MY', { minimumFractionDigits: 2 })}`,
+                              payableBase: (v) => `Asas pengiraan: RM${Number(v).toLocaleString('en-MY', { minimumFractionDigits: 2 })}`,
+                              payableAmount: (v) => `Zakat perlu dibayar: RM${Number(v).toLocaleString('en-MY', { minimumFractionDigits: 2 })}`,
+                              applicableRate: (v) => `Kadar: ${(Number(v) * 100).toFixed(2).replace(/\.?0+$/, '')}%`,
+                              nisabBasis: (v) => `Asas nisab: ${v === 'rm' ? 'Wang Ringgit' : 'Emas'}`,
+                              monthly: (v) => `Bayaran bulanan: RM${Number(v).toLocaleString('en-MY', { minimumFractionDigits: 2 })}`,
+                              reason: (v) => `Sebab: ${v}`,
+                              goldWornZ: (v) => `Nilai emas perhiasan: RM${Number(v).toLocaleString('en-MY', { minimumFractionDigits: 2 })}`,
+                              goldStoredZ: (v) => `Nilai emas simpanan: RM${Number(v).toLocaleString('en-MY', { minimumFractionDigits: 2 })}`,
+                              goldPawnedZ: (v) => `Nilai emas cagar: RM${Number(v).toLocaleString('en-MY', { minimumFractionDigits: 2 })}`,
+                              asbNilai: (v) => `Modal ASB: RM${Number(v).toLocaleString('en-MY', { minimumFractionDigits: 2 })}`,
+                              asbDiv: (v) => `Dividen ASB: RM${Number(v).toLocaleString('en-MY', { minimumFractionDigits: 2 })}`,
+                              kelasAsb: (v) => v === 'B' ? 'Kelas B (Khultah)' : 'Kelas A (Individu)',
                             };
                             const display = labels[k] ? labels[k](v) : `${k} = ${String(v)}`;
                             return (
@@ -591,7 +617,7 @@ function ResultScreen({ result, view, onReset, onBack }: { result: ZakatResult; 
       <button onClick={onReset} style={{ display: 'block', width: '100%', marginTop: 12, padding: '14px 0', borderRadius: 14, background: '#CE1126', color: 'white', fontWeight: 700, fontSize: 14.5, border: 'none', cursor: 'pointer', boxShadow: '0 8px 20px rgba(206,17,38,0.28)', fontFamily: 'inherit' }}>
         ↺ Kira Zakat Lain
       </button>
-      
+
       <p style={{ textAlign: 'center', fontSize: 11.5, color: '#7A6A57', marginTop: 22, lineHeight: 1.65 }}>Untuk rujukan sahaja. Sila sahkan dengan Lembaga Zakat Selangor.</p>
     </div>
   );
@@ -646,8 +672,8 @@ function Chatbot({ zakatType }: { zakatType?: string }) {
         zIndex: 1000, transition: 'all 0.2s'
       }}>
         {open
-          ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
-          : <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12" /></svg>
+          : <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
         }
       </button>
 
@@ -707,7 +733,7 @@ function Chatbot({ zakatType }: { zakatType?: string }) {
               width: 40, height: 40, borderRadius: 12, background: '#CE1126', border: 'none',
               cursor: 'pointer', display: 'grid', placeItems: 'center', flexShrink: 0
             }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" /></svg>
             </button>
           </div>
         </div>
